@@ -1,6 +1,8 @@
 package url
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestParse(t *testing.T) {
 	want := "http"                              // arrange
@@ -55,5 +57,39 @@ func TestHostname(t *testing.T) {
 				t.Fatalf("expected  %s, got %s", test.want, got)
 			}
 		})
+	}
+}
+
+func TestString(t *testing.T) {
+	data := map[string]struct {
+		url  *Url
+		want string
+	}{
+		"no scheme":   {&Url{Host: "www.google.com"}, "www.google.com"},
+		"with scheme": {&Url{Scheme: "http", Host: "www.google.com"}, "http://www.google.com"},
+		"with path":   {&Url{Scheme: "http", Host: "www.google.com", Path: "/go"}, "http://www.google.com/go"},
+	}
+	for name, test := range data {
+		t.Run(name, func(t *testing.T) {
+			if got := test.url.String(); got != test.want {
+				t.Fatalf("expected  %s, got %s", test.want, got)
+			}
+		})
+	}
+}
+
+func BenchmarkString(b *testing.B) {
+	b.ReportAllocs()
+	u := &Url{Scheme: "http", Host: "www.google.com", Path: "/go"}
+	for i := 0; i < b.N; i++ {
+		u.String()
+	}
+}
+
+func BenchmarkSlowString(b *testing.B) {
+	b.ReportAllocs()
+	u := &Url{Scheme: "http", Host: "www.google.com", Path: "/go"}
+	for i := 0; i < b.N; i++ {
+		u.SlowString()
 	}
 }

@@ -39,3 +39,32 @@ func Parse(url string) (*Url, error) {
 	}
 	return &Url{Scheme: scheme, Host: host, Path: path}, nil
 }
+
+func (u *Url) String() string {
+	var builder strings.Builder
+	if u.Scheme != "" {
+		builder.WriteString(u.Scheme)
+		builder.WriteString("://")
+	}
+	if u.Host != "" {
+		builder.WriteString(u.Host)
+	}
+	if u.Path != "" {
+		builder.WriteString(u.Path)
+	}
+	return builder.String()
+}
+
+func (u *Url) SlowString() string {
+	s := ""
+	if u.Scheme != "" {
+		s += u.Scheme + "://"
+	}
+	if u.Host != "" {
+		s += u.Host
+	}
+	if u.Path != "" {
+		s += u.Path
+	}
+	return s
+}
