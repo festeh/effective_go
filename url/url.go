@@ -11,7 +11,7 @@ type Url struct {
 	Path   string
 }
 
-func (u *Url) Port() string { 
+func (u *Url) Port() string {
 	idx := strings.Index(u.Host, ":")
 	if idx == -1 {
 		return ""
@@ -27,16 +27,28 @@ func (u *Url) Hostname() string {
 	return u.Host[:idx]
 }
 
-func Parse(url string) (*Url, error) {
+func ParseScheme(url string) (scheme, rest string, ok bool) {
 	idx := strings.Index(url, "://")
+	if idx < 1 {
+		return scheme, url, false
+	}
+	return url[:idx], url[idx+3:], true
+}
+
+func ParseHost(url string) (host, rest string) {
+	idx := strings.Index(url, "/")
 	if idx == -1 {
-		return nil, errors.New("invalid url: missing scheme")
+		return url, ""
 	}
-	scheme, rest := url[:idx], url[idx+3:]
-	host, path := rest, ""
-	if idx = strings.Index(rest, "/"); idx != -1 {
-		host, path = rest[:idx], rest[idx:]
+	return url[:idx], url[idx:]
+}
+
+func Parse(url string) (*Url, error) {
+	scheme, rest, ok := ParseScheme(url)
+	if !ok {
+		return nil, errors.New("invalid url scheme")
 	}
+	host, path := ParseHost(rest)
 	return &Url{Scheme: scheme, Host: host, Path: path}, nil
 }
 
